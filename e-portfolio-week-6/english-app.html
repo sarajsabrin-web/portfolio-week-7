@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Let's Learn English! 🍎🐶👁️</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>" />
+  <style>
+    /* ---------- Base ---------- */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      font-family: "Comic Sans MS", "Quicksand", "Nunito", "Segoe UI", system-ui, sans-serif;
+      background: linear-gradient(135deg, #ffe8f0 0%, #e0f7ff 50%, #fff7d6 100%);
+      color: #3a3a3a;
+      overflow-x: hidden;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    /* Floating background bubbles (cute decoration) */
+    .bubble {
+      position: fixed;
+      border-radius: 50%;
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .b1 { width: 80px; height: 80px; background: #ffb6c1; top: 8%;  left: 6%;  animation: float 6s ease-in-out infinite; }
+    .b2 { width: 50px; height: 50px; background: #a0e7ff; top: 70%; left: 12%; animation: float 8s ease-in-out infinite reverse; }
+    .b3 { width: 100px; height: 100px; background: #ffd89b; top: 20%; right: 8%; animation: float 7s ease-in-out infinite 1s; }
+    .b4 { width: 60px; height: 60px; background: #c1ffb6; top: 80%; right: 15%; animation: float 5s ease-in-out infinite 0.5s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%      { transform: translateY(-20px); }
+    }
+
+    /* ---------- Screens ---------- */
+    .screen {
+      display: none;          /* hidden by default */
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 520px;
+      position: relative;
+      z-index: 1;
+    }
+    .screen.active { display: flex; }   /* shown when active */
+
+    /* ---------- Home Screen ---------- */
+    .home-emoji { font-size: 4rem; margin-bottom: 0.5rem; }
+    .home-title {
+      font-size: 2.8rem;
+      font-weight: 800;
+      text-align: center;
+      color: #ff6b9d;
+      margin: 0 0 0.5rem;
+      text-shadow: 3px 3px 0 #fff, 5px 5px 0 rgba(255,107,157,0.15);
+      line-height: 1.1;
+    }
+    .home-sub {
+      font-size: 1.2rem;
+      color: #6b6b6b;
+      margin: 0 0 2.5rem;
+      text-align: center;
+    }
+
+    .start-btn {
+      font-family: inherit;
+      font-size: 1.7rem;
+      font-weight: 800;
+      padding: 1.1rem 3.5rem;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ff6b9d, #ffb86b);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #e85888, 0 14px 30px rgba(255,107,157,0.35);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      letter-spacing: 0.02em;
+    }
+    .start-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 0 #e85888, 0 18px 34px rgba(255,107,157,0.4); }
+    .start-btn:active { transform: translateY(4px); box-shadow: 0 4px 0 #e85888, 0 8px 16px rgba(255,107,157,0.3); }
+
+    .home-hint {
+      margin-top: 2rem;
+      font-size: 1rem;
+      color: #999;
+    }
+
+    /* ---------- Quiz Screen ---------- */
+    .quiz-progress {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ff6b9d;
+      margin-bottom: 1rem;
+      background: #fff;
+      padding: 0.5rem 1.4rem;
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .quiz-image-wrap {
+      width: 260px;
+      height: 260px;
+      background: #fff;
+      border-radius: 2rem;
+      padding: 1.2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pop-in 0.4s ease;
+    }
+    .quiz-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 1rem;
+    }
+
+    .quiz-prompt {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #5a5a5a;
+      margin: 0 0 1.2rem;
+      text-align: center;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.9rem;
+      width: 100%;
+    }
+
+    .option-btn {
+      font-family: inherit;
+      font-size: 1.35rem;
+      font-weight: 700;
+      padding: 1rem 0.5rem;
+      border: 3px solid transparent;
+      border-radius: 1.4rem;
+      background: #fff;
+      color: #4a4a4a;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #e6e6e6, 0 6px 16px rgba(0,0,0,0.05);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.2s ease, background 0.2s ease;
+      position: relative;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .option-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 0 #e6e6e6, 0 10px 20px rgba(0,0,0,0.08); }
+    .option-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 0 #e6e6e6, 0 3px 8px rgba(0,0,0,0.05); }
+    .option-btn:disabled { cursor: not-allowed; }
+
+    /* Feedback states */
+    .option-btn.wrong {
+      border-color: #ff4d6d;
+      background: #ffeef1;
+      color: #d6336c;
+      animation: shake 0.4s ease;
+    }
+    .option-btn.correct {
+      border-color: #2ec27e;
+      background: #e6fcf1;
+      color: #1b7a4e;
+      animation: bounce 0.5s ease;
+    }
+
+    .feedback-mark {
+      font-size: 1.4rem;
+      font-weight: 900;
+    }
+    .option-btn.wrong .feedback-mark  { color: #ff4d6d; }
+    .option-btn.correct .feedback-mark { color: #2ec27e; }
+
+    @keyframes pop-in {
+      0%   { transform: scale(0.6); opacity: 0; }
+      70%  { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.12); }
+    }
+
+    /* ---------- Victory Screen ---------- */
+    .victory-emojis { font-size: 3.5rem; margin-bottom: 0.5rem; letter-spacing: 0.2rem; }
+    .victory-title {
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: #2ec27e;
+      text-align: center;
+      margin: 0 0 0.5rem;
+      text-shadow: 3px 3px 0 #fff;
+    }
+    .victory-sub {
+      font-size: 1.3rem;
+      color: #6b6b6b;
+      margin: 0 0 2rem;
+      text-align: center;
+    }
+    .play-again-btn {
+      font-family: inherit;
+      font-size: 1.4rem;
+      font-weight: 800;
+      padding: 1rem 3rem;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #2ec27e, #4dd0e1);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #1e9a62, 0 14px 30px rgba(46,194,126,0.35);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .play-again-btn:hover { transform: translateY(-2px); }
+    .play-again-btn:active { transform: translateY(4px); box-shadow: 0 4px 0 #1e9a62; }
+
+    /* Confetti dots */
+    .confetti {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      top: -20px;
+      border-radius: 3px;
+      z-index: 10;
+      animation: confetti-fall linear forwards;
+      pointer-events: none;
+    }
+    @keyframes confetti-fall {
+      to {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0.8;
+      }
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 480px) {
+      .home-title   { font-size: 2.2rem; }
+      .quiz-image-wrap { width: 220px; height: 220px; }
+      .option-btn   { font-size: 1.15rem; min-height: 62px; }
+      .start-btn    { font-size: 1.4rem; padding: 0.9rem 2.5rem; }
+      .options      { gap: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cute floating background decorations -->
+  <div class="bubble b1"></div>
+  <div class="bubble b2"></div>
+  <div class="bubble b3"></div>
+  <div class="bubble b4"></div>
+
+  <!-- ========== HOME SCREEN ========== -->
+  <section class="screen active" id="screen-home" aria-label="Home screen">
+    <div class="home-emoji">📚✨</div>
+    <h1 class="home-title">Let's Learn English!</h1>
+    <p class="home-sub">Tap the right word for each picture 🎯</p>
+    <button class="start-btn" id="start-btn" type="button">▶ Start</button>
+    <p class="home-hint">Ages 3–6 · 5 fun questions</p>
+  </section>
+
+  <!-- ========== QUIZ SCREEN ========== -->
+  <section class="screen" id="screen-quiz" aria-label="Quiz screen">
+    <div class="quiz-progress" id="quiz-progress">Question 1 of 3</div>
+
+    <div class="quiz-image-wrap">
+      <img class="quiz-image" id="quiz-image" src="" alt="Picture" />
+    </div>
+
+    <p class="quiz-prompt">What is this?</p>
+
+    <div class="options" id="options-grid">
+      <!-- Buttons injected by JS -->
+    </div>
+  </section>
+
+  <!-- ========== VICTORY SCREEN ========== -->
+  <section class="screen" id="screen-victory" aria-label="Victory screen">
+    <div class="victory-emojis">🎉🏆🌟</div>
+    <h1 class="victory-title">You did it!</h1>
+    <p class="victory-sub">Great job! You know your words so well! 💖</p>
+    <button class="play-again-btn" id="play-again-btn" type="button">🔁 Play again</button>
+  </section>
+
+  <script>
+    // ---------- Question Data ----------
+    const QUESTIONS = [
+      {
+        image:   "apple.jpg",
+        correct: "Apple",
+        options: ["Apple", "Banana", "Pear", "Grape"]
+      },
+      {
+        image:   "dog.jpg",
+        correct: "Dog",
+        options: ["Dog", "Cat", "Mouse", "Bird"]
+      },
+      {
+        image:   "eye.jpg",
+        correct: "Eye",
+        options: ["Eye", "Hand", "Foot", "Nose"]
+      },
+      {
+        image:   "car.jpg",
+        correct: "Car",
+        options: ["Car", "Truck", "Bus", "Airplane"]
+      },
+      {
+        image:   "red-circle.jpg",
+        correct: "Red Circle",
+        options: ["Red Circle", "Blue Circle", "Green Circle", "Pink Circle"]
+      }
+    ];
+
+    // ---------- State ----------
+    let currentQuestion = 0;
+    let locked = false;  // true while showing correct-answer feedback (no clicks allowed)
+
+    // ---------- DOM ----------
+    const screenHome    = document.getElementById("screen-home");
+    const screenQuiz    = document.getElementById("screen-quiz");
+    const screenVictory = document.getElementById("screen-victory");
+    const startBtn      = document.getElementById("start-btn");
+    const playAgainBtn  = document.getElementById("play-again-btn");
+    const quizImage     = document.getElementById("quiz-image");
+    const quizProgress  = document.getElementById("quiz-progress");
+    const optionsGrid   = document.getElementById("options-grid");
+
+    // ---------- Screen switching ----------
+    function showScreen(screen) {
+      [screenHome, screenQuiz, screenVictory].forEach(s => s.classList.remove("active"));
+      screen.classList.add("active");
+    }
+
+    // ---------- Render a question ----------
+    function renderQuestion(index) {
+      const q = QUESTIONS[index];
+      locked = false;
+
+      quizProgress.textContent = `Question ${index + 1} of ${QUESTIONS.length}`;
+      quizImage.src = q.image;
+      quizImage.alt = q.correct;
+
+      // Build option buttons (re-created fresh each question so state is clean)
+      optionsGrid.innerHTML = "";
+      q.options.forEach(label => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "option-btn";
+        btn.textContent = label;
+        btn.addEventListener("click", () => handleAnswer(btn, label, q.correct));
+        optionsGrid.appendChild(btn);
+      });
+    }
+
+    // ---------- Answer handling ----------
+    function handleAnswer(btn, chosen, correct) {
+      if (locked) return;
+
+      if (chosen === correct) {
+        // Correct! — mark green, lock, wait, then advance
+        btn.classList.add("correct");
+        lockButtons();
+        speakWord(correct);
+        locked = true;
+
+        setTimeout(() => {
+          currentQuestion++;
+          if (currentQuestion >= QUESTIONS.length) {
+            showVictory();
+          } else {
+            renderQuestion(currentQuestion);
+          }
+        }, 1100);
+
+      } else {
+        // Wrong — mark red, keep all options visible, stay on same question
+        btn.classList.add("wrong");
+        btn.disabled = true;  // can't click this one again
+        shakeImage();
+      }
+    }
+
+    function lockButtons() {
+      optionsGrid.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
+    }
+
+    function shakeImage() {
+      const wrap = quizImage.parentElement;
+      wrap.style.animation = "none";
+      // trigger reflow to restart the pop-in animation → actually let's just jiggle with transform
+      wrap.animate(
+        [
+          { transform: "translateX(0)" },
+          { transform: "translateX(-6px)" },
+          { transform: "translateX(6px)" },
+          { transform: "translateX(-4px)" },
+          { transform: "translateX(0)" }
+        ],
+        { duration: 350, easing: "ease" }
+      );
+    }
+
+    // ---------- Optional: speak the correct word ----------
+    function speakWord(word) {
+      if ("speechSynthesis" in window) {
+        try {
+          const utter = new SpeechSynthesisUtterance(word);
+          utter.lang = "en-US";
+          utter.rate = 0.9;
+          utter.pitch = 1.2;
+          window.speechSynthesis.cancel();
+          window.speechSynthesis.speak(utter);
+        } catch (e) { /* ignore */ }
+      }
+    }
+
+    // ---------- Victory ----------
+    function showVictory() {
+      showScreen(screenVictory);
+      launchConfetti();
+    }
+
+    function launchConfetti() {
+      const colors = ["#ff6b9d", "#ffb86b", "#2ec27e", "#4dd0e1", "#ffd86b", "#c56bff", "#ff4d6d"];
+      const count  = 60;
+      for (let i = 0; i < count; i++) {
+        const dot = document.createElement("div");
+        dot.className = "confetti";
+        dot.style.left = Math.random() * 100 + "vw";
+        dot.style.background = colors[Math.floor(Math.random() * colors.length)];
+        dot.style.animationDuration = (2 + Math.random() * 2) + "s";
+        dot.style.animationDelay    = (Math.random() * 1.2) + "s";
+        dot.style.width  = (8  + Math.random() * 10) + "px";
+        dot.style.height = (10 + Math.random() * 10) + "px";
+        if (Math.random() > 0.5) dot.style.borderRadius = "50%";
+        document.body.appendChild(dot);
+        // cleanup after animation
+        setTimeout(() => dot.remove(), 5000);
+      }
+    }
+
+    // ---------- Event wiring ----------
+    startBtn.addEventListener("click", () => {
+      currentQuestion = 0;
+      renderQuestion(0);
+      showScreen(screenQuiz);
+    });
+
+    playAgainBtn.addEventListener("click", () => {
+      currentQuestion = 0;
+      renderQuestion(0);
+      showScreen(screenQuiz);
+    });
+  </script>
+</body>
+</html>
